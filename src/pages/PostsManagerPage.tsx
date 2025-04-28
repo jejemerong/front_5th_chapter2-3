@@ -1,24 +1,17 @@
 import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
-import {
-  Button,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from "@/shared/ui"
-import { Modal } from "@/shared/ui/Modal"
+
+import { Button } from "@/shared/ui/Button"
+import { Input } from "@/shared/ui/Input"
+import { Textarea } from "@/shared/ui/TextArea"
+import { Modal } from "@/shared/ui/Dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
+import { SelectContainer, SelectItem } from "@/shared/ui/Select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/Table"
+import { Tag } from "@/tag/tag.type"
+import { User } from "@/user/user.type"
+import { Post } from "@/post/post.type"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -26,7 +19,7 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState([]) // 게시물 목록
+  const [posts, setPosts] = useState<Post[]>([]) // 게시물 목록
   const [total, setTotal] = useState(0) // 총 게시물 수
   const [selectedPost, setSelectedPost] = useState(null) // 선택된 게시물
 
@@ -42,7 +35,7 @@ const PostsManager = () => {
 
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새로운 게시물 정보
 
-  const [tags, setTags] = useState([]) // 태그 목록
+  const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
 
   const [comments, setComments] = useState({}) // 댓글 목록
@@ -54,7 +47,7 @@ const PostsManager = () => {
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false) // 게시물 상세 대화상자 표시 여부
 
   const [showUserModal, setShowUserModal] = useState(false) // 사용자 모달 표시 여부
-  const [selectedUser, setSelectedUser] = useState(null) // 선택된 사용자
+  const [selectedUser, setSelectedUser] = useState<User | null>(null) // 선택된 사용자
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -72,7 +65,7 @@ const PostsManager = () => {
   const fetchPosts = () => {
     setLoading(true)
     let postsData
-    let usersData: User[]
+    let usersData
 
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
@@ -498,46 +491,29 @@ const PostsManager = () => {
                 />
               </div>
             </div>
-            <Select
-              value={selectedTag}
-              onValueChange={(value) => {
-                setSelectedTag(value)
-                fetchPostsByTag(value)
-                updateURL()
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="태그 선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">모든 태그</SelectItem>
-                {tags.map((tag) => (
-                  <SelectItem key={tag.url} value={tag.slug}>
-                    {tag.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 기준" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">없음</SelectItem>
-                <SelectItem value="id">ID</SelectItem>
-                <SelectItem value="title">제목</SelectItem>
-                <SelectItem value="reactions">반응</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="정렬 순서" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">오름차순</SelectItem>
-                <SelectItem value="desc">내림차순</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* 태그 선택 */}
+            <SelectContainer value={selectedTag} onValueChange={setSelectedTag} placeholder="태그 선택">
+              <SelectItem value="all">모든 태그</SelectItem>
+              {tags.map((tag) => (
+                <SelectItem key={tag.url} value={tag.slug}>
+                  {tag.slug}
+                </SelectItem>
+              ))}
+            </SelectContainer>
+
+            {/* 정렬 기준 선택 */}
+            <SelectContainer value={sortBy} onValueChange={setSortBy} placeholder="정렬 기준">
+              <SelectItem value="none">없음</SelectItem>
+              <SelectItem value="id">ID</SelectItem>
+              <SelectItem value="title">제목</SelectItem>
+              <SelectItem value="reactions">반응</SelectItem>
+            </SelectContainer>
+
+            {/* 정렬 순서 선택 */}
+            <SelectContainer value={sortOrder} onValueChange={setSortOrder} placeholder="정렬 순서">
+              <SelectItem value="asc">오름차순</SelectItem>
+              <SelectItem value="desc">내림차순</SelectItem>
+            </SelectContainer>
           </div>
 
           {/* 게시물 테이블 */}
@@ -547,16 +523,15 @@ const PostsManager = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span>표시</span>
-              <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="30">30</SelectItem>
-                </SelectContent>
-              </Select>
+              <SelectContainer
+                value={limit.toString()}
+                onValueChange={(value) => setLimit(Number(value))}
+                placeholder="10"
+              >
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+                <SelectItem value="30">30</SelectItem>
+              </SelectContainer>
               <span>항목</span>
             </div>
             <div className="flex gap-2">
