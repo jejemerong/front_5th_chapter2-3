@@ -3,10 +3,6 @@ import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from
 import { useLocation, useNavigate } from "react-router-dom"
 import {
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
   Input,
   Select,
   SelectContent,
@@ -22,6 +18,7 @@ import {
   Textarea,
 } from "@/shared/ui"
 import { Modal } from "@/shared/ui/Modal"
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
 
 const PostsManager = () => {
   const navigate = useNavigate()
