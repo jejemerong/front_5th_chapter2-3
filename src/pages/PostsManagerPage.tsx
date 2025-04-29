@@ -4,14 +4,22 @@ import { useLocation, useNavigate } from "react-router-dom"
 
 import { Button } from "@/shared/ui/Button"
 import { Input } from "@/shared/ui/Input"
-import { Textarea } from "@/shared/ui/TextArea"
-import { Modal } from "@/shared/ui/Dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
 import { SelectContainer, SelectItem } from "@/shared/ui/Select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/Table"
+
 import { Tag } from "@/tag/tag.type"
 import { User } from "@/user/user.type"
 import { Post } from "@/post/post.type"
+
+import { UserModal } from "@/user/ui/UserModal"
+
+import { CommentsEditModal } from "@/comments/ui/CommentEditModal"
+import { CommentsAddModal } from "@/comments/ui/CommentsAddModal"
+
+import { PostDetailModal } from "@/post/ui/PostDetailModal"
+import { PostEditModal } from "@/post/ui/PostEditModal"
+import { PostAddModal } from "@/post/ui/PostAddModal"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -547,111 +555,53 @@ const PostsManager = () => {
       </CardContent>
 
       {/* 게시물 추가 대화상자 */}
-      <Modal title="새 게시물 추가" open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <div className="space-y-4">
-          <Input
-            placeholder="제목"
-            value={newPost.title}
-            onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-          />
-          <Textarea
-            rows={30}
-            placeholder="내용"
-            value={newPost.body}
-            onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-          />
-          <Input
-            type="number"
-            placeholder="사용자 ID"
-            value={newPost.userId}
-            onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
-          />
-          <Button onClick={addPost}>게시물 추가</Button>
-        </div>
-      </Modal>
+      <PostAddModal
+        showAddDialog={showAddDialog}
+        setShowAddDialog={setShowAddDialog}
+        newPost={newPost}
+        setNewPost={setNewPost}
+        addPost={addPost}
+      />
 
       {/* 게시물 수정 대화상자 */}
-      <Modal title="게시물 수정" open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <div className="space-y-4">
-          <Input
-            placeholder="제목"
-            value={selectedPost?.title || ""}
-            onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-          />
-          <Textarea
-            rows={15}
-            placeholder="내용"
-            value={selectedPost?.body || ""}
-            onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-          />
-          <Button onClick={updatePost}>게시물 업데이트</Button>
-        </div>
-      </Modal>
+      <PostEditModal
+        showEditDialog={showEditDialog}
+        setShowEditDialog={setShowEditDialog}
+        selectedPost={selectedPost}
+        setSelectedPost={setSelectedPost}
+        updatePost={updatePost}
+      />
 
       {/* 댓글 추가 대화상자 */}
-      <Modal title="새 댓글 추가" open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <div className="space-y-4">
-          <Textarea
-            placeholder="댓글 내용"
-            value={newComment.body}
-            onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-          />
-          <Button onClick={addComment}>댓글 추가</Button>
-        </div>
-      </Modal>
+      <CommentsAddModal
+        showAddCommentDialog={showAddCommentDialog}
+        setShowAddCommentDialog={setShowAddCommentDialog}
+        newComment={newComment}
+        setNewComment={setNewComment}
+        addComment={addComment}
+      />
 
       {/* 댓글 수정 대화상자 */}
-      <Modal title="댓글 수정" open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <div className="space-y-4">
-          <Textarea
-            placeholder="댓글 내용"
-            value={selectedComment?.body || ""}
-            onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-          />
-          <Button onClick={updateComment}>댓글 업데이트</Button>
-        </div>
-      </Modal>
+      <CommentsEditModal
+        showEditCommentDialog={showEditCommentDialog}
+        setShowEditCommentDialog={setShowEditCommentDialog}
+        selectedComment={selectedComment}
+        setSelectedComment={setSelectedComment}
+        updateComment={updateComment}
+      />
 
       {/* 게시물 상세 보기 대화상자 */}
-      <Modal
-        title={highlightText(selectedPost?.title, searchQuery)}
-        open={showPostDetailDialog}
-        onOpenChange={setShowPostDetailDialog}
-      >
-        <div className="space-y-4">
-          <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-          {renderComments(selectedPost?.id)}
-        </div>
-      </Modal>
+      <PostDetailModal
+        showPostDetailDialog={showPostDetailDialog}
+        setShowPostDetailDialog={setShowPostDetailDialog}
+        selectedPost={selectedPost}
+        searchQuery={searchQuery}
+        highlightText={highlightText}
+        renderComments={renderComments}
+      />
 
       {/* 사용자 모달 */}
-      <Modal title="사용자 정보" open={showUserModal} onOpenChange={setShowUserModal}>
-        <div className="space-y-4">
-          <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-          <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-          <div className="space-y-2">
-            <p>
-              <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-            </p>
-            <p>
-              <strong>나이:</strong> {selectedUser?.age}
-            </p>
-            <p>
-              <strong>이메일:</strong> {selectedUser?.email}
-            </p>
-            <p>
-              <strong>전화번호:</strong> {selectedUser?.phone}
-            </p>
-            <p>
-              <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-              {selectedUser?.address?.state}
-            </p>
-            <p>
-              <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-            </p>
-          </div>
-        </div>
-      </Modal>
+      <UserModal showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
     </Card>
   )
 }
