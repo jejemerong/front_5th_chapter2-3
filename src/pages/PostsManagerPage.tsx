@@ -8,18 +8,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
 import { SelectContainer, SelectItem } from "@/shared/ui/Select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/Table"
 
-import { Tag } from "@/tag/tag.type"
-import { User } from "@/user/user.type"
-import { Post } from "@/post/post.type"
+import { Post } from "@/entities/posts/post.type"
 
-import { UserModal } from "@/user/ui/UserModal"
+import { UserModal } from "@/entities/users/ui/UserModal"
 
-import { CommentsEditModal } from "@/comments/ui/CommentEditModal"
-import { CommentsAddModal } from "@/comments/ui/CommentsAddModal"
+import { CommentsEditModal } from "@/features/comments/ui/CommentEditModal"
+import { CommentsAddModal } from "@/features/comments/ui/CommentsAddModal"
 
-import { PostDetailModal } from "@/post/ui/PostDetailModal"
-import { PostEditModal } from "@/post/ui/PostEditModal"
-import { PostAddModal } from "@/post/ui/PostAddModal"
+import { PostDetailModal } from "@/features/posts/ui/PostDetailModal"
+import { PostEditModal } from "@/features/posts/ui/PostEditModal"
+import { PostAddModal } from "@/features/posts/ui/PostAddModal"
+import { User } from "@/entities/users/model/user.type"
+import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -53,9 +53,7 @@ const PostsManager = () => {
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자 표시 여부
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false) // 댓글 수정 대화상자 표시 여부
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false) // 게시물 상세 대화상자 표시 여부
-
-  const [showUserModal, setShowUserModal] = useState(false) // 사용자 모달 표시 여부
-  const [selectedUser, setSelectedUser] = useState<User | null>(null) // 선택된 사용자
+  const { setSelectedUserId, openModal } = useUserModalStore()
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -69,7 +67,7 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`)
   }
 
-  // 게시물 가져오기
+  // 게시물 가져오기 => 게시물 목록, 사용자 정보 가져오기
   const fetchPosts = () => {
     setLoading(true)
     let postsData
@@ -295,12 +293,10 @@ const PostsManager = () => {
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
-      const response = await fetch(`/api/users/${user.id}`)
-      const userData = await response.json()
-      setSelectedUser(userData)
-      setShowUserModal(true)
+      setSelectedUserId(user.id)
+      openModal(user.id)
     } catch (error) {
       console.error("사용자 정보 가져오기 오류:", error)
     }
@@ -601,7 +597,7 @@ const PostsManager = () => {
       />
 
       {/* 사용자 모달 */}
-      <UserModal showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
+      <UserModal />
     </Card>
   )
 }
