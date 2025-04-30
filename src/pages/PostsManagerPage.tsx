@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react"
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { Edit2, Plus, Search, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { Button } from "@/shared/ui/Button"
 import { Input } from "@/shared/ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
 import { SelectContainer, SelectItem } from "@/shared/ui/Select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/Table"
 
-import { Post } from "@/entities/posts/post.type"
+import { Post } from "@/entities/posts/model/post.type"
+import { Tag } from "@/entities/posts/model/tag.type"
 
-import { UserModal } from "@/entities/users/ui/UserModal"
+import { CommentsEditModal } from "@/features/AddComments/ui/CommentEditModal"
+import { CommentsAddModal } from "@/features/AddComments/ui/CommentsAddModal"
 
-import { CommentsEditModal } from "@/features/comments/ui/CommentEditModal"
-import { CommentsAddModal } from "@/features/comments/ui/CommentsAddModal"
+import { PostDetailModal } from "@/features/Posts/ui/PostDetailModal"
+import { PostEditModal } from "@/features/Posts/ui/PostEditModal"
+import { PostAddModal } from "@/features/Posts/ui/PostAddModal"
 
-import { PostDetailModal } from "@/features/posts/ui/PostDetailModal"
-import { PostEditModal } from "@/features/posts/ui/PostEditModal"
-import { PostAddModal } from "@/features/posts/ui/PostAddModal"
 import { User } from "@/entities/users/model/user.type"
 import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
+import { UserModal } from "@/entities/users/ui/UserModal"
+
+import { PostsTable } from "@/widgets/ui/PostsTable"
+import { useTagsList } from "@/entities/posts/api/useTagsList"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -43,7 +46,7 @@ const PostsManager = () => {
 
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새로운 게시물 정보
 
-  const [tags, setTags] = useState<Tag[]>([]) // 태그 목록
+  const { data: allTags = [], isLoading: isTagsLoading, isError: isTagsError, error: tagsError } = useTagsList()
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
 
   const [comments, setComments] = useState({}) // 댓글 목록
@@ -95,17 +98,6 @@ const PostsManager = () => {
       .finally(() => {
         setLoading(false)
       })
-  }
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags")
-      const data = await response.json()
-      setTags(data)
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error)
-    }
   }
 
   // 게시물 검색
@@ -303,10 +295,6 @@ const PostsManager = () => {
   }
 
   useEffect(() => {
-    fetchTags()
-  }, [])
-
-  useEffect(() => {
     if (selectedTag) {
       fetchPostsByTag(selectedTag)
     } else {
@@ -339,86 +327,6 @@ const PostsManager = () => {
       </span>
     )
   }
-
-  // 게시물 테이블 렌더링
-  const renderPostTable = () => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">ID</TableHead>
-          <TableHead>제목</TableHead>
-          <TableHead className="w-[150px]">작성자</TableHead>
-          <TableHead className="w-[150px]">반응</TableHead>
-          <TableHead className="w-[150px]">작업</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell>{post.id}</TableCell>
-            <TableCell>
-              <div className="space-y-1">
-                <div>{highlightText(post.title, searchQuery)}</div>
-
-                <div className="flex flex-wrap gap-1">
-                  {post.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className={`px-1 text-[9px] font-semibold rounded-[4px] cursor-pointer ${
-                        selectedTag === tag
-                          ? "text-white bg-blue-500 hover:bg-blue-600"
-                          : "text-blue-800 bg-blue-100 hover:bg-blue-200"
-                      }`}
-                      onClick={() => {
-                        setSelectedTag(tag)
-                        updateURL()
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
-                <span>{post.author?.username}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4" />
-                <span>{post.reactions?.likes || 0}</span>
-                <ThumbsDown className="w-4 h-4" />
-                <span>{post.reactions?.dislikes || 0}</span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedPost(post)
-                    setShowEditDialog(true)
-                  }}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  )
 
   // 댓글 렌더링
   const renderComments = (postId) => (
@@ -498,7 +406,7 @@ const PostsManager = () => {
             {/* 태그 선택 */}
             <SelectContainer value={selectedTag} onValueChange={setSelectedTag} placeholder="태그 선택">
               <SelectItem value="all">모든 태그</SelectItem>
-              {tags.map((tag) => (
+              {allTags.map((tag: Tag) => (
                 <SelectItem key={tag.url} value={tag.slug}>
                   {tag.slug}
                 </SelectItem>
@@ -521,7 +429,21 @@ const PostsManager = () => {
           </div>
 
           {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : renderPostTable()}
+          {loading ? (
+            <div className="flex justify-center p-4">로딩 중...</div>
+          ) : (
+            <PostsTable
+              posts={posts}
+              searchQuery={searchQuery}
+              selectedTag={selectedTag}
+              onTagClick={setSelectedTag}
+              onOpenDetail={openPostDetail}
+              onEdit={setSelectedPost}
+              onDelete={deletePost}
+              onUserClick={openUserModal}
+              highlightText={highlightText}
+            />
+          )}
 
           {/* 페이지네이션 */}
           <div className="flex justify-between items-center">
