@@ -1,4 +1,4 @@
-import { Tag } from "@/tag/tag.type"
+import { Tag } from "@/entities/tag/tag.type"
 import { User } from "@/user/user.type"
 
 export interface Post {
