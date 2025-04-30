@@ -10,12 +10,12 @@ import { SelectContainer, SelectItem } from "@/shared/ui/Select"
 import { Post } from "@/entities/posts/model/post.type"
 import { Tag } from "@/entities/posts/model/tag.type"
 
-import { CommentsEditModal } from "@/features/AddComments/ui/CommentEditModal"
-import { CommentsAddModal } from "@/features/AddComments/ui/CommentsAddModal"
+import { CommentsEditModal } from "@/features/addComments/ui/CommentEditModal"
+import { CommentsAddModal } from "@/features/addComments/ui/CommentsAddModal"
 
-import { PostDetailModal } from "@/features/Posts/ui/PostDetailModal"
-import { PostEditModal } from "@/features/Posts/ui/PostEditModal"
-import { PostAddModal } from "@/features/Posts/ui/PostAddModal"
+import { PostDetailModal } from "@/features/posts/ui/PostDetailModal"
+import { PostEditModal } from "@/features/posts/ui/PostEditModal"
+import { PostAddModal } from "@/features/posts/ui/PostAddModal"
 
 import { User } from "@/entities/users/model/user.type"
 import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
