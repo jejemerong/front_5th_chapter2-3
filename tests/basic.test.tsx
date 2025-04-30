@@ -43,12 +43,24 @@ beforeAll(() => server.listen({ onUnhandledRequest: "error" }))
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
+// tests/TestProviders.tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ReactNode } from "react"
+
+const queryClient = new QueryClient()
+
+export const TestProviders = ({ children }: { children: ReactNode }) => {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+}
+
 // 테스트에 공통으로 사용될 render 함수
 const renderPostsManager = () => {
   return render(
-    <MemoryRouter>
-      <PostsManager />
-    </MemoryRouter>,
+    <TestProviders>
+      <MemoryRouter>
+        <PostsManager />
+      </MemoryRouter>
+    </TestProviders>,
   )
 }
 
