@@ -1,4 +1,4 @@
-import { Post } from "@/entities/posts/types/post.type"
+import { Post } from "@/entities/posts/model/post.type"
 import { useAllPostsQuery } from "@/entities/posts/model/useAllPostsQuery"
 import { useAllUsersQuery } from "@/entities/users/model/useAllUsersQuery"
 

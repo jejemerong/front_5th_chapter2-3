@@ -23,6 +23,9 @@ import { UserModal } from "@/features/user-modal/ui/UserModal"
 import { PostsTable } from "@/widgets/ui/PostsTable"
 import { useTagsList } from "@/entities/posts/model/useTagsList"
 import { Pagination } from "@/shared/ui/Pagination"
+import { usePostModalStore } from "@/features/posts-edit/model/usePostModalStore"
+import { usePostsQuery } from "@/entities/posts/model/usePostsQuery"
+import { usePostsStore } from "@/entities/posts/model/usePostsStore"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -30,9 +33,11 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search)
 
   // 상태 관리
-  const [posts, setPosts] = useState<Post[]>([]) // 게시물 목록
+  const { posts, setPosts } = usePostsStore()
+  const { data: postsData } = usePostsQuery()
+  const { data: allTags = [] } = useTagsList()
+
   const [total, setTotal] = useState(0) // 총 게시물 수
-  const [selectedPost, setSelectedPost] = useState(null) // 선택된 게시물
 
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0")) // 건너뛸 게시물 수
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10")) // 페이지당 게시물 수
@@ -41,17 +46,16 @@ const PostsManager = () => {
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "") // 정렬 기준
   const [loading, setLoading] = useState(false) // 로딩 상태
 
-  const [showAddDialog, setShowAddDialog] = useState(false) // 게시물 추가 대화상자 표시 여부
-  const [showEditDialog, setShowEditDialog] = useState(false) // 게시물 수정 대화상자 표시 여부
-
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 }) // 새로운 게시물 정보
 
-  const { data: allTags = [], isLoading: isTagsLoading, isError: isTagsError, error: tagsError } = useTagsList()
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "") // 선택된 태그
 
   const [comments, setComments] = useState({}) // 댓글 목록
   const [selectedComment, setSelectedComment] = useState(null) // 선택된 댓글
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 }) // 새로운 댓글 정보
+
+  const { showAddDialog, setShowAddDialog, showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } =
+    usePostModalStore()
 
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자 표시 여부
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false) // 댓글 수정 대화상자 표시 여부
@@ -160,22 +164,6 @@ const PostsManager = () => {
       setNewPost({ title: "", body: "", userId: 1 })
     } catch (error) {
       console.error("게시물 추가 오류:", error)
-    }
-  }
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      })
-      const data = await response.json()
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)))
-      setShowEditDialog(false)
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error)
     }
   }
 
@@ -293,6 +281,15 @@ const PostsManager = () => {
       console.error("사용자 정보 가져오기 오류:", error)
     }
   }
+
+  useEffect(() => {
+    if (postsData) {
+      setPosts(postsData.posts)
+      setTotal(postsData.total)
+      setSkip(postsData.skip)
+      setLimit(postsData.limit)
+    }
+  }, [postsData])
 
   useEffect(() => {
     if (selectedTag) {
@@ -463,11 +460,11 @@ const PostsManager = () => {
 
       {/* 게시물 수정 대화상자 */}
       <PostEditModal
-        showEditDialog={showEditDialog}
-        setShowEditDialog={setShowEditDialog}
-        selectedPost={selectedPost}
-        setSelectedPost={setSelectedPost}
-        updatePost={updatePost}
+      // showEditDialog={showEditDialog}
+      // setShowEditDialog={setShowEditDialog}
+      // selectedPost={selectedPost}
+      // setSelectedPost={setSelectedPost}
+      // updatePost={updatePost}
       />
 
       {/* 댓글 추가 대화상자 */}

@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
-import { getAllUsers } from "@/entities/users/api/getAllUsers"
+import { getUsers } from "@/entities/users/api/getUsers"
 import { User } from "@/entities/users/model/user.type"
 
 interface UsersResponse {
   users: User[]
 }
 
-export const useAllUsersQuery = () => {
+export const useUsersQuery = () => {
   return useQuery<UsersResponse>({
     queryKey: ["users", "username-image"],
-    queryFn: getAllUsers,
+    queryFn: getUsers,
   })
 }

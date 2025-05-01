@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query"
-import { getAllTags } from "@/entities/posts/api/getAllTags"
+import { getTags } from "@/entities/posts/api/getTags"
 
 export const useTagsList = () => {
   return useQuery({
     queryKey: ["tags"],
-    queryFn: getAllTags,
+    queryFn: getTags,
   })
 }

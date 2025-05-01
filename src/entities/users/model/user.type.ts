@@ -7,13 +7,17 @@ export interface User {
   email: string
   phone: string
   image: string
-  address: {
-    address: string
-    city: string
-    state: string
-  }
-  company: {
-    name: string
-    title: string
-  }
+  address: Address
+  company: Company
+}
+
+export interface Address {
+  address: string
+  city: string
+  state: string
+}
+
+export interface Company {
+  name: string
+  title: string
 }
