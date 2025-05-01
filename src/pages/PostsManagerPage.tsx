@@ -7,23 +7,22 @@ import { Input } from "@/shared/ui/Input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/Card"
 import { SelectContainer, SelectItem } from "@/shared/ui/Select"
 
-import { Post } from "@/entities/posts/model/post.type"
-import { Tag } from "@/entities/posts/model/tag.type"
-
-import { CommentsEditModal } from "@/features/comments/edit/CommentEditModal"
-import { CommentsAddModal } from "@/features/comments/add/CommentsAddModal"
-
-import { PostDetailModal } from "@/features/posts/detail/ui/PostDetailModal"
-import { PostEditModal } from "@/features/posts/edit/ui/PostEditModal"
-import { PostAddModal } from "@/features/posts/add/ui/PostAddModal"
-
+import { Post, Tag } from "@/entities/posts/model/post.type"
 import { User } from "@/entities/users/model/user.type"
+
+import { CommentsEditModal } from "@/features/comments-edit/ui/CommentsEditModal"
+import { CommentsAddModal } from "@/features/comments-add/ui/CommentsAddModal"
+
+import { PostDetailModal } from "@/features/posts-detail/ui/PostDetailModal"
+import { PostEditModal } from "@/features/posts-edit/ui/PostEditModal"
+import { PostAddModal } from "@/features/posts-add/ui/PostAddModal"
+
 import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
-import { UserModal } from "@/entities/users/ui/UserModal"
+import { UserModal } from "@/features/user-modal/ui/UserModal"
 
 import { PostsTable } from "@/widgets/ui/PostsTable"
-import { useTagsList } from "@/entities/posts/api/useTagsList"
-import { Pagination } from "@/features/posts/ui/Pagination"
+import { useTagsList } from "@/entities/posts/model/useTagsList"
+import { Pagination } from "@/shared/ui/Pagination"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -437,11 +436,13 @@ const PostsManager = () => {
               posts={posts}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
-              onTagClick={setSelectedTag}
-              onOpenDetail={openPostDetail}
-              onEdit={setSelectedPost}
-              onDelete={deletePost}
-              onUserClick={openUserModal}
+              setSelectedTag={setSelectedTag}
+              updateURL={updateURL}
+              openUserModal={openUserModal}
+              openPostDetail={openPostDetail}
+              setSelectedPost={setSelectedPost}
+              setShowEditDialog={setShowEditDialog}
+              deletePost={deletePost}
               highlightText={highlightText}
             />
           )}
