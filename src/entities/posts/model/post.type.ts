@@ -1,6 +1,3 @@
-import { Reaction } from "./reaction.type"
-import { Tag } from "./tag.type"
-
 export interface Post {
   id: number
   title: string
@@ -8,4 +5,13 @@ export interface Post {
   tags: Tag[]
   reactions: Reaction
   userId: number
+}
+
+export interface Reaction {
+  like: number
+  dislike: number
+}
+export interface Tag {
+  url: string
+  slug: string
 }

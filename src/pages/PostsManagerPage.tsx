@@ -10,12 +10,12 @@ import { SelectContainer, SelectItem } from "@/shared/ui/Select"
 import { Post } from "@/entities/posts/model/post.type"
 import { Tag } from "@/entities/posts/model/tag.type"
 
-import { CommentsEditModal } from "@/features/addComments/ui/CommentEditModal"
-import { CommentsAddModal } from "@/features/addComments/ui/CommentsAddModal"
+import { CommentsEditModal } from "@/features/comments/edit/CommentEditModal"
+import { CommentsAddModal } from "@/features/comments/add/CommentsAddModal"
 
-import { PostDetailModal } from "@/features/posts/ui/PostDetailModal"
-import { PostEditModal } from "@/features/posts/ui/PostEditModal"
-import { PostAddModal } from "@/features/posts/ui/PostAddModal"
+import { PostDetailModal } from "@/features/posts/detail/ui/PostDetailModal"
+import { PostEditModal } from "@/features/posts/edit/ui/PostEditModal"
+import { PostAddModal } from "@/features/posts/add/ui/PostAddModal"
 
 import { User } from "@/entities/users/model/user.type"
 import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
@@ -23,6 +23,7 @@ import { UserModal } from "@/entities/users/ui/UserModal"
 
 import { PostsTable } from "@/widgets/ui/PostsTable"
 import { useTagsList } from "@/entities/posts/api/useTagsList"
+import { Pagination } from "@/features/posts/ui/Pagination"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -377,7 +378,7 @@ const PostsManager = () => {
   )
 
   return (
-    <Card className="w-full max-w-6xl mx-auto">
+    <Card className="w-full max-w-6xl mx-auto ">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
@@ -446,29 +447,7 @@ const PostsManager = () => {
           )}
 
           {/* 페이지네이션 */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <span>표시</span>
-              <SelectContainer
-                value={limit.toString()}
-                onValueChange={(value) => setLimit(Number(value))}
-                placeholder="10"
-              >
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="30">30</SelectItem>
-              </SelectContainer>
-              <span>항목</span>
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={skip === 0} onClick={() => setSkip(Math.max(0, skip - limit))}>
-                이전
-              </Button>
-              <Button disabled={skip + limit >= total} onClick={() => setSkip(skip + limit)}>
-                다음
-              </Button>
-            </div>
-          </div>
+          <Pagination limit={limit} skip={skip} total={total} onLimitChange={setLimit} onSkipChange={setSkip} />
         </div>
       </CardContent>
 
