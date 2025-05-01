@@ -3,13 +3,13 @@ import { Modal } from "@/shared/ui/Dialog"
 import { Input } from "@/shared/ui/Input"
 import { Textarea } from "@/shared/ui/TextArea"
 import { usePostModalStore } from "../model/usePostModalStore"
-import { useUpdatePostMutation } from "../model/useUpdatePostMutation"
 import { usePostsStore } from "@/entities/posts/model/usePostsStore"
+import { useUpdatePostsMutation } from "@/features/posts-edit/model/useUpdatePostsMutation"
 
 export const PostEditModal = () => {
   const { showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } = usePostModalStore()
   const { posts, setPosts } = usePostsStore()
-  const { mutateAsync: updatePost } = useUpdatePostMutation()
+  const { mutateAsync: updatePost } = useUpdatePostsMutation()
   return (
     <Modal title="게시물 수정" open={showEditDialog} onOpenChange={setShowEditDialog}>
       <div className="space-y-4">

@@ -2,36 +2,34 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react"
 import { Button } from "@/shared/ui/Button"
 import { Post } from "@/entities/posts/model/post.type"
+import { useDeletePostsMutation } from "@/features/posts-delete/model/useDeletePostsMutation"
+import { usePostsStore } from "@/entities/posts/model/usePostsStore"
+import { usePostModalStore } from "@/features/posts-edit/model/usePostModalStore"
+import { useUserModalStore } from "@/features/user-modal/model/useUserModalStore"
 
 interface PostsTableProps {
-  posts: Post[]
   searchQuery: string
   selectedTag: string
   setSelectedTag: (tag: string) => void
   updateURL: () => void
-  openUserModal: (user: User) => Promise<void>
   openPostDetail: (post: Post) => void
   setSelectedPost: Dispatch<SetStateAction<Post>>
-  setShowEditDialog: Dispatch<SetStateAction<boolean>>
-  deletePost: (id: number) => void
   highlightText: (text: string, keyword: string) => React.ReactNode
 }
 
 export const PostsTable = ({
-  posts,
   searchQuery,
   selectedTag,
   setSelectedTag,
   updateURL,
-  openUserModal,
   openPostDetail,
   setSelectedPost,
-  setShowEditDialog,
-  deletePost,
   highlightText,
 }: PostsTableProps) => {
-  // const { mutate: updatePost } = useUpdatePostsMutation()
-  // const { mutate: deletePost } = useDeletePostsMutation()
+  const { mutate: deletePost } = useDeletePostsMutation()
+  const { posts, setPosts } = usePostsStore()
+  const { setShowEditDialog } = usePostModalStore()
+  const { setSelectedUserId, openModal } = useUserModalStore()
 
   return (
     <Table>
@@ -73,7 +71,13 @@ export const PostsTable = ({
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => {
+                  setSelectedUserId(post.author.id)
+                  openModal(post.author.id)
+                }}
+              >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
@@ -101,7 +105,15 @@ export const PostsTable = ({
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const postId = post.id
+                    deletePost(postId)
+                    setPosts(posts.filter((post) => post.id !== postId))
+                  }}
+                >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

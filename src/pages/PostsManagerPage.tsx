@@ -26,6 +26,7 @@ import { Pagination } from "@/shared/ui/Pagination"
 import { usePostModalStore } from "@/features/posts-edit/model/usePostModalStore"
 import { usePostsQuery } from "@/entities/posts/model/usePostsQuery"
 import { usePostsStore } from "@/entities/posts/model/usePostsStore"
+import { useDeletePostsMutation } from "@/features/posts-delete/model/useDeletePostsMutation"
 
 const PostsManager = () => {
   const navigate = useNavigate()
@@ -54,8 +55,7 @@ const PostsManager = () => {
   const [selectedComment, setSelectedComment] = useState(null) // 선택된 댓글
   const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 }) // 새로운 댓글 정보
 
-  const { showAddDialog, setShowAddDialog, showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } =
-    usePostModalStore()
+  const { showAddDialog, setShowAddDialog, setShowEditDialog, selectedPost, setSelectedPost } = usePostModalStore()
 
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false) // 댓글 추가 대화상자 표시 여부
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false) // 댓글 수정 대화상자 표시 여부
@@ -167,18 +167,6 @@ const PostsManager = () => {
     }
   }
 
-  // 게시물 삭제
-  const deletePost = async (id) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      })
-      setPosts(posts.filter((post) => post.id !== id))
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error)
-    }
-  }
-
   // 댓글 가져오기
   const fetchComments = async (postId) => {
     if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
@@ -270,16 +258,6 @@ const PostsManager = () => {
     setSelectedPost(post)
     fetchComments(post.id)
     setShowPostDetailDialog(true)
-  }
-
-  // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
-    try {
-      setSelectedUserId(user.id)
-      openModal(user.id)
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error)
-    }
   }
 
   useEffect(() => {
@@ -430,16 +408,12 @@ const PostsManager = () => {
             <div className="flex justify-center p-4">로딩 중...</div>
           ) : (
             <PostsTable
-              posts={posts}
               searchQuery={searchQuery}
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              openUserModal={openUserModal}
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
-              setShowEditDialog={setShowEditDialog}
-              deletePost={deletePost}
               highlightText={highlightText}
             />
           )}
@@ -459,13 +433,7 @@ const PostsManager = () => {
       />
 
       {/* 게시물 수정 대화상자 */}
-      <PostEditModal
-      // showEditDialog={showEditDialog}
-      // setShowEditDialog={setShowEditDialog}
-      // selectedPost={selectedPost}
-      // setSelectedPost={setSelectedPost}
-      // updatePost={updatePost}
-      />
+      <PostEditModal />
 
       {/* 댓글 추가 대화상자 */}
       <CommentsAddModal
